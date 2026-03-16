@@ -1,0 +1,9 @@
+{
+  "name": "ama-gse-companion",
+  "version": "1.0.0",
+  "description": "Ama — Ghana Stock Exchange AI Companion",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}

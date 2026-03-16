@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ama — Ghana Stock Companion</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0C0C10;--bg2:#13131A;--bg3:#1A1A24;
+  --gold:#F0C040;--gold2:#B8860B;--gold-dim:#2A2010;
+  --green:#00A86B;--red:#EF3340;
+  --text:#F0EDE8;--text2:#9A9080;--text3:#5A5048;
+  --border:#252520;
+}
+body{margin:0;padding:0;background:#0a0a0e;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+#app{display:flex;flex-direction:column;height:620px;width:100%;max-width:680px;background:var(--bg);border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+
+/* HEADER */
+#header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#B8860B,#F0C040);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#0C0C10;flex-shrink:0}
+.hinfo h3{font-size:14px;font-weight:600;color:var(--text);line-height:1.2}
+.hinfo p{font-size:11px;color:var(--text2)}
+.live-badge{margin-left:auto;display:flex;align-items:center;gap:5px;background:rgba(0,168,107,0.12);border:1px solid rgba(0,168,107,0.3);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--green);flex-shrink:0}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.flag-strip{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.flag-strip span{width:14px;height:3px;border-radius:1px;display:block}
+
+/* CHAT */
+#chat{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+#chat::-webkit-scrollbar{width:4px}
+#chat::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* WELCOME */
+#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:24px;text-align:center;gap:14px}
+.w-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7A5A00,#F0C040);display:flex;align-items:center;justify-content:center;font-size:28px;color:#0C0C10;font-weight:800;box-shadow:0 0 30px rgba(240,192,64,0.25)}
+#welcome h2{font-size:20px;font-weight:600;color:var(--text);line-height:1.3}
+#welcome p{font-size:13.5px;color:var(--text2);max-width:320px;line-height:1.6}
+.w-caps{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:340px}
+.w-cap{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11.5px;color:var(--text2)}
+
+/* BUBBLES */
+.msg-row{display:flex;gap:10px;align-items:flex-end}
+.msg-row.user{flex-direction:row-reverse}
+.msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.ama-av{background:linear-gradient(135deg,#B8860B,#F0C040);color:#0C0C10}
+.user-av{background:var(--bg3);color:var(--text2)}
+.bubble{max-width:78%;padding:11px 14px;border-radius:14px;font-size:13.5px;line-height:1.65;color:var(--text)}
+.ama-bubble{background:var(--bg3);border:1px solid var(--border);border-bottom-left-radius:4px}
+.user-bubble{background:var(--gold-dim);border:1px solid rgba(240,192,64,0.2);border-bottom-right-radius:4px}
+.bubble strong{color:var(--gold);font-weight:600}
+.bubble ul{padding-left:18px;margin:4px 0}
+.bubble li{margin-bottom:3px}
+.bubble .note{font-size:11.5px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.typing{display:flex;gap:4px;padding:14px}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--text3);animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* SUGGESTIONS */
+#suggestions{padding:8px 16px;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#suggestions::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s}
+.chip:hover{border-color:var(--gold2);color:var(--gold);background:var(--gold-dim)}
+
+/* INPUT */
+#input-bar{display:flex;gap:10px;padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+#input-bar input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13.5px;color:var(--text);font-family:inherit;outline:none;transition:border .15s}
+#input-bar input::placeholder{color:var(--text3)}
+#input-bar input:focus{border-color:var(--gold2)}
+#send{width:38px;height:38px;border-radius:10px;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+#send:hover{background:#F5D060}
+#send:disabled{background:var(--bg3);cursor:not-allowed;opacity:.5}
+
+/* MOBILE */
+@media(max-width:600px){
+  body{align-items:flex-start;padding:0}
+  #app{height:100dvh;max-width:100%;border-radius:0;border:none;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div class="flag-strip">
+      <span style="background:#EF3340"></span>
+      <span style="background:#FCD116"></span>
+      <span style="background:#006B3F"></span>
+    </div>
+    <div class="avatar">A</div>
+    <div class="hinfo">
+      <h3>Ama — GSE AI Companion</h3>
+      <p>Your first-time investor guide for Ghana stocks</p>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>Live search</div>
+  </div>
+
+  <div id="chat">
+    <div id="welcome">
+      <div class="w-avatar">A</div>
+      <h2>Medaase! I'm Ama 👋<br>Your Ghana Stock Companion</h2>
+      <p>Ask me anything about the Ghana Stock Exchange — prices, how to invest, what dividends mean, or which companies to watch. I'll search for real-time answers.</p>
+      <div class="w-caps">
+        <span class="w-cap">Real-time GSE prices</span>
+        <span class="w-cap">Beginner friendly</span>
+        <span class="w-cap">Web search powered</span>
+        <span class="w-cap">Educational</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="suggestions">
+    <div class="chip" onclick="send(this.textContent)">MTN Ghana price today?</div>
+    <div class="chip" onclick="send(this.textContent)">How do I buy my first share?</div>
+    <div class="chip" onclick="send(this.textContent)">Which stocks pay dividends?</div>
+    <div class="chip" onclick="send(this.textContent)">What is a P/E ratio?</div>
+    <div class="chip" onclick="send(this.textContent)">GCB vs SCB — which is better?</div>
+    <div class="chip" onclick="send(this.textContent)">How much do I need to start?</div>
+    <div class="chip" onclick="send(this.textContent)">Explain T-Bills vs stocks</div>
+    <div class="chip" onclick="send(this.textContent)">What is the GSE-CI index today?</div>
+    <div class="chip" onclick="send(this.textContent)">Is now a good time to invest?</div>
+    <div class="chip" onclick="send(this.textContent)">IC Securities vs Black Star?</div>
+  </div>
+
+  <div id="input-bar">
+    <input id="txt" placeholder="Ask Ama anything about Ghana stocks..." onkeydown="if(event.key==='Enter')send()" />
+    <button id="send" onclick="send()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0C0C10" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+// ─── SYSTEM PROMPT ───────────────────────────────────────────────────────────
+const SYSTEM = `You are Ama, a warm and knowledgeable AI companion specializing in the Ghana Stock Exchange (GSE) and Ghanaian financial markets. You help first-time and beginner investors understand stocks.
+
+Your personality:
+- Warm, patient, and encouraging — never condescending
+- Use simple language and always explain every financial term you use
+- Culturally grounded — use relatable Ghanaian context where natural (cedi, everyday examples)
+- Honest about risks — never promise returns or make specific buy/sell recommendations
+
+Your deep knowledge covers:
+- GSE listed companies: MTNGH, GCB, SCB, CAL, EGH, SOGEGH, BOPP, TOTAL, UNIL, SIC, GOIL, GGBL, FML, ACCESS, RBGH, TBL and others
+- How trading works: T+3 settlement, order matching, bid/ask spread, market vs limit orders, CSD accounts
+- Brokers: IC Securities (ICSTrade platform, US stocks via ICSGlobal), Black Star Brokerage, Databank, Republic Securities
+- Account opening: Ghana Card (NIA), TIN from GRA, proof of address, passport photos, bank account details
+- Financial analysis: P/E ratio, EPS, dividend yield, ROE, book value per share, debt-to-equity
+- Macroeconomics: Bank of Ghana policy rate, cedi exchange rate, inflation, GDP growth
+- Fixed income: T-Bills (91/182/364-day), government bonds, corporate bonds
+- Transaction costs: ~2.1–2.6% per side (brokerage commission ~1.5-2% + GSE levy 0.5% + SEC 0.05% + CSD 0.05%)
+- Dividends: 8% withholding tax at source; capital gains on GSE shares currently exempt from tax
+- GSE indices: GSE Composite Index (GSE-CI) and GSE Financial Stocks Index (GSE-FSI)
+
+When asked about current prices or recent news: search the web for the latest from gse.com.gh or financial news. Always note when data is from a live search.
+
+Formatting:
+- Use **bold** for key terms and numbers
+- Use bullet lists for multiple points  
+- Use GH₵ for cedis
+- Keep answers focused — under 250 words unless complexity requires more
+- End stock-specific responses with a brief educational takeaway
+
+Important: You are for educational purposes only — not a licensed financial adviser. Always remind users to consult an SEC-licensed broker before making actual investment decisions.`;
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let history = [];
+let busy = false;
+
+// ─── MARKDOWN ─────────────────────────────────────────────────────────────────
+function md(txt) {
+  return txt
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^###\s(.+)$/gm, '<div style="font-size:13px;font-weight:600;color:var(--gold);margin:8px 0 3px">$1</div>')
+    .replace(/^##\s(.+)$/gm, '<div style="font-size:13.5px;font-weight:600;color:var(--gold);margin:8px 0 3px">$1</div>')
+    .replace(/^-\s(.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul style="margin:6px 0">$1</ul>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function addBubble(role, html) {
+  const chat = document.getElementById('chat');
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (role === 'user' ? ' user' : '');
+  const av = document.createElement('div');
+  av.className = 'msg-avatar ' + (role === 'user' ? 'user-av' : 'ama-av');
+  av.textContent = role === 'user' ? 'You' : 'A';
+  const bub = document.createElement('div');
+  bub.className = 'bubble ' + (role === 'user' ? 'user-bubble' : 'ama-bubble');
+  bub.innerHTML = html;
+  row.appendChild(av);
+  row.appendChild(bub);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addTyping() {
+  const chat = document.getElementById('chat');
+  const row = document.createElement('div');
+  row.id = 'typing-row';
+  row.className = 'msg-row';
+  const av = document.createElement('div');
+  av.className = 'msg-avatar ama-av';
+  av.textContent = 'A';
+  const bub = document.createElement('div');
+  bub.className = 'bubble ama-bubble typing';
+  bub.innerHTML = '<span></span><span></span><span></span>';
+  row.appendChild(av);
+  row.appendChild(bub);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-row');
+  if (t) t.remove();
+}
+
+// ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
+async function send(preset) {
+  const input = document.getElementById('txt');
+  const msg = (preset || input.value).trim();
+  if (!msg || busy) return;
+  input.value = '';
+  busy = true;
+  document.getElementById('send').disabled = true;
+
+  addBubble('user', msg);
+  history.push({ role: 'user', content: msg });
+  addTyping();
+
+  try {
+    // ↓ Calls YOUR proxy at /api/chat — NOT Anthropic directly
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: SYSTEM,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: history
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Error ' + res.status);
+    }
+
+    const data = await res.json();
+    removeTyping();
+
+    const textBlocks = (data.content || []).filter(b => b.type === 'text');
+    const searched = (data.content || []).some(b => b.type === 'tool_use');
+    const reply = textBlocks.map(b => b.text).join('') || 'I could not find an answer. Please try rephrasing.';
+
+    const note = searched
+      ? '<div class="note">🔍 Live web search used — verify at gse.com.gh</div>'
+      : '<div class="note">💡 For investment decisions, always consult an SEC-licensed broker.</div>';
+
+    addBubble('assistant', md(reply) + note);
+    history.push({ role: 'assistant', content: reply });
+    if (history.length > 24) history = history.slice(-24);
+
+  } catch (e) {
+    removeTyping();
+    addBubble('assistant', '⚠️ ' + (e.message || 'Something went wrong. Please try again.') + '<div class="note">If this keeps happening, check your internet connection.</div>');
+  }
+
+  busy = false;
+  document.getElementById('send').disabled = false;
+  document.getElementById('txt').focus();
+}
+</script>
+</body>
+</html>
